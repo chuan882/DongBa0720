@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.tedu.dongba.dao.SysUserDao">
+    <sql id="queryWhereId">
+        from sys_users
+        <where>
+            <if test="username!=null and username!=''">
+                username like concat ("%",#{username},"%")
+            </if>
+        </where>
+    </sql>
+    <resultMap  id="sysUserDept"
+                type="com.tedu.dongba.pojo.SysUserDept"
+    >
+        <association property="sysDept"
+                     column="deptId"
+                     select="com.tedu.dongba.dao.SysDeptDao.findById">
+        </association>
+    </resultMap>
+    <select id="findPageObjects"
+            resultMap="sysUserDept">
+        select *
+        <include refid="queryWhereId"/>
+        order by createdTime desc
+        limit #{startIndex},#{pageSize}
+    </select>
+    <select id="getRowCount"
+            resultType="int">
+        select count(*)
+        <include refid="queryWhereId"/>
+    </select>
+    <insert id="insertObject"
+            parameterType="com.tedu.common.entity.SysUser"
+            useGeneratedKeys="true"
+            keyProperty="id">
+      insert into sys_users
+      (username,password,deptId,email,mobile,salt,valid,
+      createdTime,modifiedTime,createdUser,modifiedUser)
+      values
+    (#{username},#{password},#{deptId},#{email},#{mobile},#{salt},#{valid},
+      now(),now(),#{createdUser},#{modifiedUser})
+   </insert>
+</mapper>
